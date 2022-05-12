@@ -1,1 +1,2 @@
 # Word-Detective
+:sunglasses:
