@@ -1,0 +1,3 @@
+fastapi==0.77.1
+uvicorn==0.17.6
+line-bot-sdk==2.2.1
