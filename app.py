@@ -1,5 +1,6 @@
 import os
-from fastapi import FastAPI, request, abort
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
 import uvicorn
 
 from linebot import (
@@ -24,18 +25,17 @@ handler = WebhookHandler(YOUR_CHANNEL_SECRET)
 @app.post("/callback")
 def callback():
     # get X-Line-Signature header value
-    signature = request.headers['X-Line-Signature']
+    signature = Request.headers['X-Line-Signature']
 
     # get request body as text
-    body = request.get_data(as_text=True)
+    body = Request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
     # handle webhook body
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
-        print("Invalid signature. Please check your channel access token/channel secret.")
-        abort(400)
+        return JSONResponse(content={"status": "error", "message": "Invalid signature. Please check your channel access token/channel secret."}, status_code=status.HTTP_400_BAD_REQUEST)
 
     return 'OK'
 
