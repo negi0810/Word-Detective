@@ -1,0 +1,14 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "pwa-msedge",
+            "request": "launch",
+            "name": "Open color1_02220205.html",
+            "file": "c:\\Users\\negi0\\OneDrive\\デスクトップ\\月曜日\\４限、情報学Ⅰ\\第6回\\color1_02220205.html"
+        }
+    ]
+}
