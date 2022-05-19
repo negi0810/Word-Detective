@@ -23,17 +23,17 @@ from linebot.models import (
 #   }
 # }
 
-def operate(event):
+async def operate(event):
     # メッセージがグループから送られている:
     if event.source.type == "group":
         # メッセージが"@ニューゲーム":
         if event.message.text == "@ニューゲーム":
             # 送信元グループでルームが存在する:
-            if db.collection('word-detective').document(event.source.groupId).get().exists:
+            if await db.collection('word-detective').document(event.source.groupId).get().exists:
                 # 一旦ゲームを終了するよう促す
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        (
+                        text=(
                             "このグループで既に実行中のゲームがあります。\n"
                             "ゲームを新規に開始するにはこのゲームを終了する必要があります。\n"
                             "「@アボート」と発言することでゲームを強制終了することができます。"
@@ -41,11 +41,16 @@ def operate(event):
                     )
                 )
             else:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="ゲームを開始しました"
+                    )
+                )
                 # 送信元グループidをキーとしてルームを生成
-                db.collection('word-detective').document(event.source.groupId).set(
+                await db.collection('word-detective').document(event.source.groupId).set(
                     # DBの初期状態
                     {
-                        "groupID": "xxxx000", 
+                        "groupID": event.source.groupId, 
                         # "participants": {
                         # "user001": {"tier1_point": 2},
                         # "user002": {"tier1_point": 3}, 
@@ -63,15 +68,15 @@ def operate(event):
         elif event.message.text == "@アボート":
             # 送信元グループでルームが存在する:
             doc_ref = db.collection('word-detective').document(event.source.groupId)
-            if doc_ref.get().exists:
+            if await doc_ref.get().exists:
                 # そのルームを破棄
-                doc_ref.delete()
+                await doc_ref.delete()
             # 送信元グループでルームが存在しない:
             else:
                 # 当該ルームが存在しないことを通知
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        "現在このグループで実行中のゲームはありません"
+                        text="現在このグループで実行中のゲームはありません"
                     )
                 )
                 # または、何もしない
@@ -79,7 +84,7 @@ def operate(event):
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
-                    "その他のメッセージが送られました"
+                    text="その他のメッセージが送られました"
                 )
             )
         #     送信元グループでルームが存在する and ルームに送信ユーザーが登録されている:

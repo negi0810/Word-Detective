@@ -115,8 +115,8 @@ mine = ["勉強", "サークル", "習い事", "睡眠"]
 trigger = ["大学生になって初めて知ったこと", "休日何してる？", "生きてるうちにしたいこと", "イチオシの本の魅力"]
 
 @handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    crud.operate(event)
+async def handle_message(event):
+    await crud.operate(event)
     # msg = event.message.text
     # i = random.randint(0, 1)
     # global now_state
