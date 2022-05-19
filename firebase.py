@@ -30,7 +30,7 @@ if not is_local:
 
 firebase_app = firebase_admin.initialize_app(cred, {
     'storageBucket': 'word-detective-7ac3b.appspot.com',
-    'projectId': 'gword-detective-7ac3b',
+    'projectId': 'word-detective-7ac3b',
 })
 
 
