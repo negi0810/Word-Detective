@@ -76,7 +76,12 @@ def operate(event):
                 )
                 # または、何もしない
         # その他のメッセージ:
-        # else:
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(
+                    "その他のメッセージが送られました"
+                )
+            )
         #     送信元グループでルームが存在する and ルームに送信ユーザーが登録されている:
         #         ルームの状態に応じた返答をする
         #         メッセージによってルームの状態を変更する
