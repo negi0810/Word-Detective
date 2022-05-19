@@ -1,4 +1,5 @@
 import os, random
+import crud
 from flask import Flask, request, abort
 
 from linebot import LineBotApi, WebhookHandler
@@ -115,43 +116,33 @@ trigger = ["大学生になって初めて知ったこと", "休日何してる�
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    msg = event.message.text
-    i = random.randint(0, 1)
-    global now_state
-    if msg == "ゲーム開始":
-        now_state = "started"
-        line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text="それではゲームを始めます")
-        )
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=trigger[2*i])
-        )
-    if now_state == "started" and msg == "後半スタート":
-        now_state = "latter_game_started"
-        line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text=trigger[2*i + 1])
-        )
-        # now_state = "completed"
-        line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text="結果発表\n勝者はAさんです")
-        )
-        now_state = "standby"
-    else:
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="まずは「ゲームを開始」と言ってください")
-        )
-    # if msg == "あああ":
-    #     if now_state == "aaa":
-    #         line_bot_api.reply_message(
-    #         event.reply_token, TextSendMessage(text="fasd")
-    #         )
-    #         line_bot_api.reply_message(
+    crud.operate(event)
+    # msg = event.message.text
+    # i = random.randint(0, 1)
+    # global now_state
+    # if msg == "ゲーム開始":
+    #     now_state = "started"
+    #     line_bot_api.reply_message(
+    #     event.reply_token, TextSendMessage(text="それではゲームを始めます")
+    #     )
+    #     line_bot_api.reply_message(
     #         event.reply_token, TextSendMessage(text=trigger[2*i])
-    #         )
+    #     )
+    # if now_state == "started" and msg == "後半スタート":
+    #     now_state = "latter_game_started"
+    #     line_bot_api.reply_message(
+    #     event.reply_token, TextSendMessage(text=trigger[2*i + 1])
+    #     )
+    #     # now_state = "completed"
+    #     line_bot_api.reply_message(
+    #     event.reply_token, TextSendMessage(text="結果発表\n勝者はAさんです")
+    #     )
+    #     now_state = "standby"
     # else:
-    #         line_bot_api.reply_message(
-    #         event.reply_token, TextSendMessage(text="スタンバイ中")
-    #         )
+    #     line_bot_api.reply_message(
+    #         event.reply_token, TextSendMessage(text="まずは「ゲームを開始」と言ってください")
+    #     )
+
 
     # if msg == "ゲーム開始":
     #     line_bot_api.reply_message(
