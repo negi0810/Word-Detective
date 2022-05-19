@@ -1,6 +1,5 @@
 from firebase import db
 from firebase_admin import firestore
-from app import line_bot_api
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
@@ -24,7 +23,7 @@ from linebot.models import (
 #   }
 # }
 
-async def operate(event):
+async def operate(event, line_bot_api):
     # メッセージがグループから送られている:
     if event.source.type == "group":
         # メッセージが"@ニューゲーム":

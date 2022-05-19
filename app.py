@@ -116,7 +116,7 @@ trigger = ["大学生になって初めて知ったこと", "休日何してる�
 
 @handler.add(MessageEvent, message=TextMessage)
 async def handle_message(event):
-    await crud.operate(event)
+    await crud.operate(event, line_bot_api=line_bot_api)
     # msg = event.message.text
     # i = random.randint(0, 1)
     # global now_state
