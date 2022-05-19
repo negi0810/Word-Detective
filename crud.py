@@ -1,4 +1,5 @@
 from firebase import db
+from firebase_admin import firestore
 from app import line_bot_api
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
