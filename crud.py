@@ -87,6 +87,12 @@ async def operate(event, line_bot_api):
                     text="その他のメッセージが送られました"
                 )
             )
+    else:
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="グループではない所から送られました"
+            )
+        )
         #     送信元グループでルームが存在する and ルームに送信ユーザーが登録されている:
         #         ルームの状態に応じた返答をする
         #         メッセージによってルームの状態を変更する
