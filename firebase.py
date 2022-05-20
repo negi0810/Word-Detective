@@ -50,7 +50,7 @@ f.write(cert_json_str)
 f.close()
 cred = credentials.Certificate(cred_file_path)
 
-os.remove(cred_file_path)
+# os.remove(cred_file_path)
 
 firebase_app = firebase_admin.initialize_app(cred, {
     'storageBucket': 'word-detective-7ac3b.appspot.com',
