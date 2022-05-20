@@ -49,7 +49,7 @@ f = open(cred_file_path, mode='w')
 f.write(cert_json_str)
 f.close()
 cred = credentials.Certificate(cred_file_path)
-
+print("test")
 # os.remove(cred_file_path)
 
 firebase_app = firebase_admin.initialize_app(cred, {
