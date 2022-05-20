@@ -43,6 +43,7 @@ from firebase_admin import firestore
 
 cred_file_path = "cred.json"
 cert_json_str = os.environ.get("cert_json")
+print(cert_json_str)
 
 f = open(cred_file_path, mode='w')
 f.write(cert_json_str)
