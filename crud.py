@@ -9,7 +9,7 @@ from linebot.models import (
 )
 
 # {
-#   "groupID": "xxxx000",
+#   "group_iD": "xxxx000",
 #   "participants": {
 #     "user001": {"tier1_point": 2},
 #     "user002": {"tier1_point": 3},
@@ -29,14 +29,14 @@ def operate(event, line_bot_api):
     print("event", event)
     print("event.source", event.source)
     print("event.source.type", event.source.type)
-    print("event.source.groupId", event.source.groupId)
+    print("event.source.group_id", event.source.group_id)
     print("event.message.text", event.message.text)
     # メッセージがグループから送られている:
     if event.source.type == "group":
         # メッセージが"@ニューゲーム":
         if event.message.text == "@ニューゲーム":
             # 送信元グループでルームが存在する:
-            if db.collection('word-detective').document(event.source.groupId).get().exists:
+            if db.collection('word-detective').document(event.source.group_id).get().exists:
                 # 一旦ゲームを終了するよう促す
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
@@ -54,10 +54,10 @@ def operate(event, line_bot_api):
                     )
                 )
                 # 送信元グループidをキーとしてルームを生成
-                db.collection('word-detective').document(event.source.groupId).set(
+                db.collection('word-detective').document(event.source.group_id).set(
                     # DBの初期状態
                     {
-                        "groupID": event.source.groupId,
+                        "group_iD": event.source.group_id,
                         # "participants": {
                         # "user001": {"tier1_point": 2},
                         # "user002": {"tier1_point": 3},
@@ -75,7 +75,7 @@ def operate(event, line_bot_api):
         elif event.message.text == "@アボート":
             # 送信元グループでルームが存在する:
             doc_ref = db.collection(
-                'word-detective').document(event.source.groupId)
+                'word-detective').document(event.source.group_id)
             if doc_ref.get().exists:
                 # そのルームを破棄
                 doc_ref.delete()
