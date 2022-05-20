@@ -1,5 +1,5 @@
 import os, random
-# import crud
+import crud
 from flask import Flask, request, abort
 
 from linebot import LineBotApi, WebhookHandler
@@ -117,7 +117,7 @@ trigger = ["大学生になって初めて知ったこと", "休日何してる�
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("call endpoint")
-    # await crud.operate(event, line_bot_api=line_bot_api)
+    crud.operate(event, line_bot_api=line_bot_api)
     msg = event.message.text
     i = random.randint(0, 1)
     global now_state
