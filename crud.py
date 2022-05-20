@@ -35,7 +35,7 @@ async def operate(event, line_bot_api):
         # メッセージが"@ニューゲーム":
         if event.message.text == "@ニューゲーム":
             # 送信元グループでルームが存在する:
-            if await db.collection('word-detective').document(event.source.groupId).get().exists:
+            if db.collection('word-detective').document(event.source.groupId).get().exists:
                 # 一旦ゲームを終了するよう促す
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
@@ -53,7 +53,7 @@ async def operate(event, line_bot_api):
                     )
                 )
                 # 送信元グループidをキーとしてルームを生成
-                await db.collection('word-detective').document(event.source.groupId).set(
+                db.collection('word-detective').document(event.source.groupId).set(
                     # DBの初期状態
                     {
                         "groupID": event.source.groupId, 
@@ -74,9 +74,9 @@ async def operate(event, line_bot_api):
         elif event.message.text == "@アボート":
             # 送信元グループでルームが存在する:
             doc_ref = db.collection('word-detective').document(event.source.groupId)
-            if await doc_ref.get().exists:
+            if doc_ref.get().exists:
                 # そのルームを破棄
-                await doc_ref.delete()
+                doc_ref.delete()
             # 送信元グループでルームが存在しない:
             else:
                 # 当該ルームが存在しないことを通知

@@ -115,7 +115,7 @@ mine = ["勉強", "サークル", "習い事", "睡眠"]
 trigger = ["大学生になって初めて知ったこと", "休日何してる？", "生きてるうちにしたいこと", "イチオシの本の魅力"]
 
 @handler.add(MessageEvent, message=TextMessage)
-async def handle_message(event):
+def handle_message(event):
     print("call endpoint")
     # await crud.operate(event, line_bot_api=line_bot_api)
     msg = event.message.text
