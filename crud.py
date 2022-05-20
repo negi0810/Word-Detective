@@ -9,7 +9,7 @@ from linebot.models import (
 )
 
 # {
-#   "group_iD": "xxxx000",
+#   "group_id": "xxxx000",
 #   "participants": {
 #     "user001": {"tier1_point": 2},
 #     "user002": {"tier1_point": 3},
@@ -57,7 +57,7 @@ def operate(event, line_bot_api):
                 db.collection('word-detective').document(event.source.group_id).set(
                     # DBの初期状態
                     {
-                        "group_iD": event.source.group_id,
+                        "group_id": event.source.group_id,
                         # "participants": {
                         # "user001": {"tier1_point": 2},
                         # "user002": {"tier1_point": 3},
