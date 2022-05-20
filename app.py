@@ -117,18 +117,18 @@ trigger = ["大学生になって初めて知ったこと", "休日何してる�
 @handler.add(MessageEvent, message=TextMessage)
 async def handle_message(event):
     print("call endpoint")
-    await crud.operate(event, line_bot_api=line_bot_api)
-    # msg = event.message.text
-    # i = random.randint(0, 1)
-    # global now_state
-    # if msg == "ゲーム開始":
-    #     now_state = "started"
-    #     line_bot_api.reply_message(
-    #     event.reply_token, TextSendMessage(text="それではゲームを始めます")
-    #     )
-    #     line_bot_api.reply_message(
-    #         event.reply_token, TextSendMessage(text=trigger[2*i])
-    #     )
+    # await crud.operate(event, line_bot_api=line_bot_api)
+    msg = event.message.text
+    i = random.randint(0, 1)
+    global now_state
+    if msg == "ゲーム開始":
+        now_state = "started"
+        line_bot_api.reply_message(
+        event.reply_token, TextSendMessage(text="それではゲームを始めます")
+        )
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=trigger[2*i])
+        )
     # if now_state == "started" and msg == "後半スタート":
     #     now_state = "latter_game_started"
     #     line_bot_api.reply_message(
