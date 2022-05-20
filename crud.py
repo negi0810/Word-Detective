@@ -9,10 +9,10 @@ from linebot.models import (
 )
 
 # {
-#   "groupID": "xxxx000", 
+#   "groupID": "xxxx000",
 #   "participants": {
 #     "user001": {"tier1_point": 2},
-#     "user002": {"tier1_point": 3}, 
+#     "user002": {"tier1_point": 3},
 #     "user003": {"tier1_point": 0}
 #   },
 #   "gamestate": "tier1",
@@ -23,7 +23,8 @@ from linebot.models import (
 #   }
 # }
 
-async def operate(event, line_bot_api):
+
+def operate(event, line_bot_api):
     print("call operate")
     print("event", event)
     print("event.source", event.source)
@@ -56,10 +57,10 @@ async def operate(event, line_bot_api):
                 db.collection('word-detective').document(event.source.groupId).set(
                     # DBの初期状態
                     {
-                        "groupID": event.source.groupId, 
+                        "groupID": event.source.groupId,
                         # "participants": {
                         # "user001": {"tier1_point": 2},
-                        # "user002": {"tier1_point": 3}, 
+                        # "user002": {"tier1_point": 3},
                         # "user003": {"tier1_point": 0}
                         # },
                         # "gamestate": "tier1",
@@ -73,7 +74,8 @@ async def operate(event, line_bot_api):
         # メッセージが"@アボート":
         elif event.message.text == "@アボート":
             # 送信元グループでルームが存在する:
-            doc_ref = db.collection('word-detective').document(event.source.groupId)
+            doc_ref = db.collection(
+                'word-detective').document(event.source.groupId)
             if doc_ref.get().exists:
                 # そのルームを破棄
                 doc_ref.delete()
