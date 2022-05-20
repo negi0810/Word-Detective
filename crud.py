@@ -24,6 +24,12 @@ from linebot.models import (
 # }
 
 async def operate(event, line_bot_api):
+    print("call operate")
+    print("event", event)
+    print("event.source", event.source)
+    print("event.source.type", event.source.type)
+    print("event.source.groupId", event.source.groupId)
+    print("event.message.text", event.message.text)
     # メッセージがグループから送られている:
     if event.source.type == "group":
         # メッセージが"@ニューゲーム":
