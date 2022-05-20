@@ -6,7 +6,7 @@ from firebase_admin import firestore
 
 cred_file_path = ""
 
-tmp_cred_file_path = "/tmp/cred.json"
+tmp_cred_file_path = "tmp/cred.json"
 
 is_local = os.path.exists("cert.json")
 

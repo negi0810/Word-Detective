@@ -1,4 +1,5 @@
-import os, random
+import os
+import random
 import crud
 from flask import Flask, request, abort
 
@@ -114,6 +115,7 @@ def callback():
 mine = ["勉強", "サークル", "習い事", "睡眠"]
 trigger = ["大学生になって初めて知ったこと", "休日何してる？", "生きてるうちにしたいこと", "イチオシの本の魅力"]
 
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("call endpoint")
@@ -124,7 +126,7 @@ def handle_message(event):
     if msg == "ゲーム開始":
         now_state = "started"
         line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text="それではゲームを始めます")
+            event.reply_token, TextSendMessage(text="それではゲームを始めます")
         )
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=trigger[2*i])
@@ -143,7 +145,6 @@ def handle_message(event):
     #     line_bot_api.reply_message(
     #         event.reply_token, TextSendMessage(text="まずは「ゲームを開始」と言ってください")
     #     )
-
 
     # if msg == "ゲーム開始":
     #     line_bot_api.reply_message(
