@@ -24,6 +24,9 @@ from linebot.models import (
 # }
 
 
+now_state = "standby"
+
+
 def new_game(event, line_bot_api):
     doc_ref = db.collection("word-detective").document(event.source.group_id)
     # 送信元グループでルームが存在する:
@@ -38,7 +41,7 @@ def new_game(event, line_bot_api):
             # DBの初期状態
             {
                 "group_id": event.source.group_id,
-                # "participants": {},
+                "participants": {},
                 # "gamestate": "tier1",
                 # "gameinfo": {
                 #     "started_at": "2022/05/16 23:56:31"
@@ -47,6 +50,7 @@ def new_game(event, line_bot_api):
                 # }
             }
         )
+        now_state = "recruiting"
     else:
         # 一旦ゲームを終了するよう促す
         line_bot_api.reply_message(
@@ -60,6 +64,7 @@ def new_game(event, line_bot_api):
         )
     return True
 
+
 def abort(event, line_bot_api):
     doc_ref = db.collection("word-detective").document(event.source.group_id)
     # 送信元グループでルームが存在する:
@@ -71,6 +76,7 @@ def abort(event, line_bot_api):
         )
         # そのルームを破棄
         doc_ref.delete()
+        now_state = "standby"
     # 送信元グループでルームが存在しない:
     else:
         # 当該ルームが存在しないことを通知
@@ -82,12 +88,12 @@ def abort(event, line_bot_api):
         # または、何もしない
     return True
 
+
 def join(event, line_bot_api):
     doc_ref = db.collection("word-detective").document(event.source.group_id)
-    doc = doc_ref.get()
     # 送信元グループでルームが存在する:
-    if doc.exists:
-        doc_dict = doc.to_dict()
+    if doc_ref.get().exists:
+        doc_dict = doc_ref.get().to_dict()
         profile = line_bot_api.get_profile(event.source.user_id)
         # プレイヤーがまだ参加していないとき
         if event.source.user_id not in doc_dict.get("participants"):
@@ -116,3 +122,41 @@ def join(event, line_bot_api):
             )
         )
     return True
+
+
+def escape(event, line_bot_api):
+    doc_ref = db.collection("word-detective").document(event.source.group_id)
+    doc_dict = doc_ref.get().to_dict()
+    profile = line_bot_api.get_profile(event.source.user_id)
+
+    if doc_ref.get().exists:
+        if now_state == "recruiting":
+            if event.source.user_id in doc_dict.get("participants"):
+                doc_ref.update(
+                    {
+                        ("participants."+event.source.user_id): firestore.DELETE_FIELD
+                    }
+                )
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text=(profile.display_name+"さんがルームを退出しました")
+                    )
+                )
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="あなたはまだこのルームに参加していません"
+                    )
+                )
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(
+                    text="現在はルームを退出することができません\nゲームを終了したい場合は「@アボート」を入力してください"
+                )
+            )
+    else:
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="ルーム自体が存在していません"
+            )
+        )

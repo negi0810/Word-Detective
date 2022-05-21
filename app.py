@@ -14,8 +14,6 @@ from linebot.models import (
 app = Flask(__name__)
 
 
-now_state = "standby"
-
 YOUR_CHANNEL_ACCESS_TOKEN = os.environ["YOUR_CHANNEL_ACCESS_TOKEN"]
 YOUR_CHANNEL_SECRET = os.environ["YOUR_CHANNEL_SECRET"]
 
@@ -52,17 +50,20 @@ trigger = ["大学生になって初めて知ったこと", "休日何してる�
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("call endpoint")
-        # メッセージがグループから送られている:
+    msg = event.source.text
+    # メッセージがグループから送られている:
     if event.source.type == "group":
         # メッセージが"@ニューゲーム":
-        if event.message.text == "@ニューゲーム":
+        if msg == "@ニューゲーム":
             crud.new_game(event, line_bot_api=line_bot_api)
         # メッセージが"@アボート":
-        elif event.message.text == "@アボート":
+        elif msg == "@アボート":
             crud.abort(event, line_bot_api=line_bot_api)
         # メッセージが"@ジョイン"
-        elif event.message.text == "@ジョイン":
+        elif msg == "@ジョイン":
             crud.join(event, line_bot_api=line_bot_api)
+        elif msg == "@エスケープ":
+            crud.escape(event, line_bot_api=line_bot_api)
         # その他のメッセージ:
         else:
             line_bot_api.reply_message(
