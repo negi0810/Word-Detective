@@ -24,9 +24,6 @@ from linebot.models import (
 # }
 
 
-now_state = "standby"
-
-
 def new_game(event, line_bot_api):
     doc_ref = db.collection("word-detective").document(event.source.group_id)
     # 送信元グループでルームが存在する:
@@ -42,6 +39,7 @@ def new_game(event, line_bot_api):
             {
                 "group_id": event.source.group_id,
                 "participants": {},
+                "now_state": "standby",
                 # "gamestate": "tier1",
                 # "gameinfo": {
                 #     "started_at": "2022/05/16 23:56:31"
@@ -50,7 +48,7 @@ def new_game(event, line_bot_api):
                 # }
             }
         )
-        now_state = "recruiting"
+        doc_ref.update({"now_state": "recruiting"})
     else:
         # 一旦ゲームを終了するよう促す
         line_bot_api.reply_message(
@@ -76,7 +74,8 @@ def abort(event, line_bot_api):
         )
         # そのルームを破棄
         doc_ref.delete()
-        now_state = "standby"
+        doc_ref.update({"now_state": "standby"})
+
     # 送信元グループでルームが存在しない:
     else:
         # 当該ルームが存在しないことを通知
@@ -128,6 +127,9 @@ def escape(event, line_bot_api):
     doc_ref = db.collection("word-detective").document(event.source.group_id)
     doc_dict = doc_ref.get().to_dict()
     profile = line_bot_api.get_profile(event.source.user_id)
+    now_state = doc_ref.get(["now_state"])
+    print(doc_ref.get())
+    print(now_state)
 
     if doc_ref.get().exists:
         if now_state == "recruiting":
