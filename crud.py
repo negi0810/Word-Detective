@@ -38,7 +38,6 @@ def new_game(event, line_bot_api):
             # DBの初期状態
             {
                 "group_id": event.source.group_id,
-                "participants": {},
                 "now_state": "standby",
                 # "gamestate": "tier1",
                 # "gameinfo": {
@@ -97,7 +96,7 @@ def join(event, line_bot_api):
         if event.source.user_id not in doc_dict.get("participants"):
             # DBに送信者のIDを登録
             doc_ref.set({
-                ("participants."+event.source.user_id): {"participants": event.source.user_id}
+                event.source.user_id: {"user_id": event.source.user_id}
             }, merge=True)
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
@@ -126,18 +125,17 @@ def escape(event, line_bot_api):
     doc_ref = db.collection("word-detective").document(event.source.group_id)
     doc_dict = doc_ref.get().to_dict()
     profile = line_bot_api.get_profile(event.source.user_id)
-    now_state = doc_ref.get(["now_state"])
-    print(doc_ref.get())
-    print(now_state)
+    now_state = doc_dict.get("now_state")
     print(doc_ref.get().to_dict())
-    print(doc_ref.get().to_dict().get("participants."+event.source.user_id))
+    print(doc_ref.get().to_dict().get(event.source.user_id))
+    print(doc_ref.get().to_dict().get(event.source.user_id["user_id"]))
 
     if doc_ref.get().exists:
         if now_state == "recruiting":
-            if event.source.user_id in doc_dict.get("participants"):
+            if event.source.user_id == doc_dict.get(event.source.user_id["user_id"]):
                 doc_ref.update(
                     {
-                        ("participants."+event.source.user_id): firestore.DELETE_FIELD
+                        event.source.user_id: firestore.DELETE_FIELD
                     }
                 )
                 line_bot_api.reply_message(
