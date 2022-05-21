@@ -38,11 +38,7 @@ def new_game(event, line_bot_api):
             # DBの初期状態
             {
                 "group_id": event.source.group_id,
-                # "participants": {
-                # "user001": {"tier1_point": 2},
-                # "user002": {"tier1_point": 3},
-                # "user003": {"tier1_point": 0}
-                # },
+                "participants": {},
                 # "gamestate": "tier1",
                 # "gameinfo": {
                 #     "started_at": "2022/05/16 23:56:31"
