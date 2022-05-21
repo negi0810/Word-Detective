@@ -397,9 +397,9 @@ def keyword_count(event, line_bot_api):
         # ルームが存在し、発言者がそれに参加して、プレイ中のときの処理
         keyword_count_sum = 0
         for mine in doc_dict.get("mine"):
-             keyword_count_sum += event.message.text.count(mine)
+            keyword_count_sum += event.message.text.count(mine)
         player_score = doc_dict.get("participants").get(event.source.user_id).get("score") + keyword_count_sum
-        doc_ref.update({("now_state"+event.source.user_id+".score"): player_score})
+        doc_ref.update({("participants."+event.source.user_id+".score"): player_score})
 
     elif len(docs) == 0:
         # ルームが存在するがプレイ中でないまたは参加してない、またはそもそもルームがないときの処理
