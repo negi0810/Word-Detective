@@ -40,7 +40,7 @@ def new_game(event, line_bot_api):
                 "group_id": event.source.group_id,
                 "now_state": "参加受付中",
                 "participants": {}
-                #now_state": "tier1",
+                # now_state": "tier1",
                 # "gameinfo": {
                 #     "started_at": "2022/05/16 23:56:31"
                 #     "keyword": "草",
@@ -100,7 +100,8 @@ def join(event, line_bot_api):
     if doc.exists:
         doc_dict = doc.to_dict()
         #profile = line_bot_api.get_profile(event.source.user_id)
-        profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+        profile = line_bot_api.get_group_member_profile(
+            event.source.group_id, event.source.user_id)
         # ルームの状態が参加受付中
         if doc_dict.get("now_state") == "参加受付中":
             # プレイヤーがまだ参加していないとき
@@ -200,7 +201,8 @@ def escape(event, line_bot_api):
     # 送信元グループでルームが存在する:
     if doc.exists:
         doc_dict = doc.to_dict()
-        profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+        profile = line_bot_api.get_group_member_profile(
+            event.source.group_id, event.source.user_id)
         # プレイヤーがすでに参加してたとき
         if event.source.user_id in doc_dict.get("participants"):
             # ルームの状態が参加受付中
@@ -251,7 +253,8 @@ def start(event, line_bot_api):
     # 送信元グループでルームが存在する:
     if doc.exists:
         doc_dict = doc.to_dict()
-        profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+        profile = line_bot_api.get_group_member_profile(
+            event.source.group_id, event.source.user_id)
         # 発言者がゲームに参加しているとき
         if event.source.user_id in doc_dict.get("participants"):
             # ルームの状態が参加受付中か確認
@@ -281,7 +284,8 @@ def start(event, line_bot_api):
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
-                    text=(profile.display_name+"さんはゲームに参加していないため、ゲームを進行する権利がありません")
+                    text=(profile.display_name +
+                          "さんはゲームに参加していないため、ゲームを進行する権利がありません")
                 )
             )
     else:
@@ -293,7 +297,8 @@ def start(event, line_bot_api):
         )
     return
 
-def stop(event, line_bot_api):
+
+def finish(event, line_bot_api):
     # user_idが取得できないとき
     if not hasattr(event.source, "user_id"):
         line_bot_api.reply_message(
@@ -307,7 +312,8 @@ def stop(event, line_bot_api):
     # 送信元グループでルームが存在する:
     if doc.exists:
         doc_dict = doc.to_dict()
-        profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+        profile = line_bot_api.get_group_member_profile(
+            event.source.group_id, event.source.user_id)
         # 発言者がゲームに参加しているとき
         if event.source.user_id in doc_dict.get("participants"):
             # ルームの状態が参加受付中か確認
@@ -338,10 +344,10 @@ def stop(event, line_bot_api):
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
-                    text=(profile.display_name+"さんはゲームに参加していないため、ゲームを進行する権利がありません")
+                    text=(profile.display_name +
+                          "さんはゲームに参加していないため、ゲームを進行する権利がありません")
                 )
             )
-        # TODO: PC版のLINEではユーザーIDを取得できないということを通知
     else:
         # 当該ルームが存在しないことを通知
         line_bot_api.reply_message(
@@ -350,3 +356,19 @@ def stop(event, line_bot_api):
             )
         )
     return
+
+
+def game_help(event, line_bot_api):
+    line_bot_api.reply_message(
+        event.reply_token, TextSendMessage(
+            text=(
+                "@ニューゲーム：ルームを作成します\n"
+                "@アボート：ルームを削除します\n"
+                "@ジョイン：ルームに入室します\n"
+                "@エスケープ：ルームから退出します\n"
+                "@スタート：ゲームを始めます\n"
+                "@フィニッシュ：ゲームを中断（？）します\n"
+                "@ヘルプ"
+            )    
+        )
+    )
