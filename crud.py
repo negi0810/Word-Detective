@@ -74,7 +74,6 @@ def abort(event, line_bot_api):
         )
         # そのルームを破棄
         doc_ref.delete()
-        doc_ref.update({"now_state": "standby"})
 
     # 送信元グループでルームが存在しない:
     else:
@@ -130,6 +129,8 @@ def escape(event, line_bot_api):
     now_state = doc_ref.get(["now_state"])
     print(doc_ref.get())
     print(now_state)
+    print(doc_ref.to_dict())
+    print(doc_ref.to_dict().get("participants."+event.source.user_id))
 
     if doc_ref.get().exists:
         if now_state == "recruiting":
