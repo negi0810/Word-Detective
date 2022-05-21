@@ -42,11 +42,6 @@ def callback():
     return "OK"
 
 
-# 地雷とトリガーのデータ構造を作る
-mine = ["勉強", "サークル", "習い事", "睡眠"]
-trigger = ["大学生になって初めて知ったこと", "休日何してる？", "生きてるうちにしたいこと", "イチオシの本の魅力"]
-
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("call endpoint")
@@ -70,7 +65,7 @@ def handle_message(event):
             crud.finish(event, line_bot_api=line_bot_api)
         elif msg == "@ヘルプ":
             crud.game_help(event, line_bot_api=line_bot_api)
-        elif msg.count("＠") >= 1:
+        elif msg[0] == "＠":
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
                     text="「@」は半角であることに注意してください"
@@ -89,9 +84,10 @@ def handle_message(event):
                 text="このBOTはグループチャットでのみ対応しています"
             )
         )
+        
     return True
-
 
 
 if __name__ == "__main__":
     app.run()
+

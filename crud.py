@@ -1,3 +1,4 @@
+import random
 from firebase import db
 from firebase_admin import firestore
 from linebot import LineBotApi, WebhookHandler
@@ -10,22 +11,25 @@ from linebot.models import (
 
 # {
 #   "group_id": "xxxx000",
+#   "now_state": "前半プレイ中",
 #   "participants": {
-#     "user001": {"tier1_point": 2},
-#     "user002": {"tier1_point": 3},
-#     "user003": {"tier1_point": 0}
+#     "ehi2": {"user_id":"ehi2", "score": 2},
+#     "dt8b": {"user_id":"ehi2", "score": 3},
+#     "t89t": {"user_id":"t89t", "score": 0}
 #   },
-#  now_state": "tier1",
-#   "gameinfo": {
-#     "started_at": "2022/05/16 23:56:31"
-#     "keyword": "草",
-#     "question": "大学生になって初めて知ったこと",
-#   }
+#   "mine": ["草", "色"],
+#   "trigger": ["大学生になって初めて知ったこと", "休日何してる？"],
 # }
+
+
+# 地雷とトリガーのデータ構造を作る
+mine = ["勉強", "サークル", "習い事", "わかる"]
+trigger = ["大学生になって初めて知ったこと", "休日何してる？", "生きてるうちにしたいこと", "イチオシの本の魅力"]
 
 
 def new_game(event, line_bot_api):
     doc_ref = db.collection("word-detective").document(event.source.group_id)
+    
     # 送信元グループでルームが存在する:
     if not doc_ref.get().exists:
         line_bot_api.reply_message(
@@ -39,15 +43,12 @@ def new_game(event, line_bot_api):
             {
                 "group_id": event.source.group_id,
                 "now_state": "参加受付中",
-                "participants": {}
-                # now_state": "tier1",
-                # "gameinfo": {
-                #     "started_at": "2022/05/16 23:56:31"
-                #     "keyword": "草",
-                #     "question": "大学生になって初めて知ったこと",
-                # }
+                "participants": {},
+                "mine": random.sample(mine, 2),
+                "trigger": random.sample(trigger, 2),
             }
         )
+    
     else:
         # 一旦ゲームを終了するよう促す
         line_bot_api.reply_message(
@@ -59,11 +60,13 @@ def new_game(event, line_bot_api):
                 )
             )
         )
+
     return
 
 
 def abort(event, line_bot_api):
     doc_ref = db.collection("word-detective").document(event.source.group_id)
+    
     # 送信元グループでルームが存在する:
     if doc_ref.get().exists:
         line_bot_api.reply_message(
@@ -82,10 +85,12 @@ def abort(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません"
             )
         )
+
     return
 
 
 def join(event, line_bot_api):
+    
     # user_idが取得できないとき
     if not hasattr(event.source, "user_id"):
         line_bot_api.reply_message(
@@ -94,8 +99,10 @@ def join(event, line_bot_api):
             )
         )
         return
+
     doc_ref = db.collection("word-detective").document(event.source.group_id)
     doc = doc_ref.get()
+    
     # 送信元グループでルームが存在する:
     if doc.exists:
         doc_dict = doc.to_dict()
@@ -109,7 +116,10 @@ def join(event, line_bot_api):
                 # DBに送信者のIDを登録
                 doc_ref.set({
                     "participants": {
-                        event.source.user_id: {"user_id": event.source.user_id}
+                        event.source.user_id: {
+                            "user_id": event.source.user_id,
+                            "score": 0
+                        }
                     }
                 }, merge=True)
                 # 送信者を登録する前の参加人数が(定員-1)のとき(つまり、定員に達したとき)
@@ -134,7 +144,7 @@ def join(event, line_bot_api):
                     text="ゲームの状態が参加受付中ではありません"
                 )
             )
-        # TODO: PC版のLINEではユーザーIDを取得できないということを通知
+    
     else:
         # 当該ルームが存在しないことを通知
         line_bot_api.reply_message(
@@ -142,52 +152,12 @@ def join(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません\n「@ニューゲーム」でルームを作成してください"
             )
         )
+
     return
 
 
-# def escape(event, line_bot_api):
-#     doc_ref = db.collection("word-detective").document(event.source.group_id)
-#     doc_dict = doc_ref.get().to_dict()
-#     profile = line_bot_api.get_profile(event.source.user_id)
-#     now_state = doc_dict.get("now_state")
-#     print(doc_ref.get().to_dict())
-#     print(doc_ref.get().to_dict().get(event.source.user_id))
-#     print(doc_ref.get().to_dict().get(event.source.user_id["user_id"]))
-
-#     if doc_ref.get().exists:
-#         if now_state == "recruiting":
-#             if event.source.user_id not in doc_dict:
-#                 doc_ref.update(
-#                     {
-#                         event.source.user_id: firestore.DELETE_FIELD
-#                     }
-#                 )
-#                 line_bot_api.reply_message(
-#                     event.reply_token, TextSendMessage(
-#                         text=(profile.display_name+"さんがルームを退出しました")
-#                     )
-#                 )
-#             else:
-#                 line_bot_api.reply_message(
-#                     event.reply_token, TextSendMessage(
-#                         text="あなたはまだこのルームに参加していません"
-#                     )
-#                 )
-#         else:
-#             line_bot_api.reply_message(
-#                 event.reply_token, TextSendMessage(
-#                     text="現在はルームを退出することができません\nゲームを終了したい場合は「@アボート」を入力してください"
-#                 )
-#             )
-#     else:
-#         line_bot_api.reply_message(
-#             event.reply_token, TextSendMessage(
-#                 text="ルーム自体が存在していません"
-#             )
-#         )
-#     return
-
 def escape(event, line_bot_api):
+
     # user_idが取得できないとき
     if not hasattr(event.source, "user_id"):
         line_bot_api.reply_message(
@@ -196,8 +166,10 @@ def escape(event, line_bot_api):
             )
         )
         return
+
     doc_ref = db.collection('word-detective').document(event.source.group_id)
     doc = doc_ref.get()
+
     # 送信元グループでルームが存在する:
     if doc.exists:
         doc_dict = doc.to_dict()
@@ -229,6 +201,7 @@ def escape(event, line_bot_api):
                     text=(profile.display_name+"さんはゲームに参加していません")
                 )
             )
+
     else:
         # 当該ルームが存在しないことを通知
         line_bot_api.reply_message(
@@ -236,10 +209,12 @@ def escape(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません"
             )
         )
+
     return
 
 
 def start(event, line_bot_api):
+
     # user_idが取得できないとき
     if not hasattr(event.source, "user_id"):
         line_bot_api.reply_message(
@@ -248,8 +223,10 @@ def start(event, line_bot_api):
             )
         )
         return
+
     doc_ref = db.collection("word-detective").document(event.source.group_id)
     doc = doc_ref.get()
+
     # 送信元グループでルームが存在する:
     if doc.exists:
         doc_dict = doc.to_dict()
@@ -288,6 +265,7 @@ def start(event, line_bot_api):
                           "さんはゲームに参加していないため、ゲームを進行する権利がありません")
                 )
             )
+
     else:
         # 当該ルームが存在しないことを通知
         line_bot_api.reply_message(
@@ -295,10 +273,12 @@ def start(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません\n「@ニューゲーム」でルームを作成してください"
             )
         )
+
     return
 
 
 def finish(event, line_bot_api):
+
     # user_idが取得できないとき
     if not hasattr(event.source, "user_id"):
         line_bot_api.reply_message(
@@ -307,8 +287,10 @@ def finish(event, line_bot_api):
             )
         )
         return
+
     doc_ref = db.collection("word-detective").document(event.source.group_id)
     doc = doc_ref.get()
+
     # 送信元グループでルームが存在する:
     if doc.exists:
         doc_dict = doc.to_dict()
@@ -320,9 +302,17 @@ def finish(event, line_bot_api):
             if doc_dict.get("now_state") == "前半プレイ中":
                 # 前半戦を始める処理
                 doc_ref.update({"now_state": "後半開始待機"})
+                # 集計して表示
+                reply_msg = ""
+                players_dict = {}
+                for player in doc_dict.get("participants"):
+                    players_dict[player["user_id"]] = player["score"]
+                    player_name = line_bot_api.get_group_member_profile(event.source.group_id, player["user_id"]).display_name
+                    reply_msg += player_name+"さん、"+player["score"]+"点！\n"
+                reply_msg += "前半戦終了！後半戦の準備が出来たら「@スタート」と入力"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        text="前半戦終了！後半戦の準備が出来たら「@スタート」と入力"
+                        text=reply_msg
                     )
                 )
             elif doc_dict.get("now_state") == "後半プレイ中":
@@ -348,6 +338,7 @@ def finish(event, line_bot_api):
                           "さんはゲームに参加していないため、ゲームを進行する権利がありません")
                 )
             )
+
     else:
         # 当該ルームが存在しないことを通知
         line_bot_api.reply_message(
@@ -355,20 +346,71 @@ def finish(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません\n「@ニューゲーム」でルームを作成してください"
             )
         )
+
     return
 
 
 def game_help(event, line_bot_api):
+
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(
             text=(
+                "使用できるコマンドは以下の通りです ※「@」は半角\n"
                 "@ニューゲーム：ルームを作成します\n"
                 "@アボート：ルームを削除します\n"
                 "@ジョイン：ルームに入室します\n"
                 "@エスケープ：ルームから退出します\n"
-                "@スタート：ゲームを始めます\n"
-                "@フィニッシュ：ゲームを中断（？）します\n"
+                "@スタート：前半戦or後半戦を始めます\n"
+                "@フィニッシュ：前半戦or後半戦を終了します\n"
                 "@ヘルプ"
             )    
         )
     )
+
+    return
+
+
+def keyword_count(event, line_bot_api):
+
+    # user_idが取得できないとき
+    if not hasattr(event.source, "user_id"):
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="userIDの取得に失敗しました"
+            )
+        )
+        return
+
+    # inのところ動くか不明
+    docs = (
+        db.collection('word-detective')
+        .where('group_id', '==', event.source.group_id)
+        .where('now_state', 'in', ["前半プレイ中", "後半プレイ中"])
+        .where('participants.'+event.source.user_id+'.user_id', '==', event.source.user_id)
+        .get()
+    )
+
+    if len(docs) == 1:
+        doc = docs[0]
+        doc_dict = doc.to_dict()
+        doc_ref = doc.reference
+        # ルームが存在し、発言者がそれに参加して、プレイ中のときの処理
+        keyword_count_sum = 0
+        for mine in doc_dict.get("mine"):
+             keyword_count_sum += event.message.text.count(mine)
+        player_score = doc_dict.get("participants").get(event.source.user_id).get("score") + keyword_count_sum
+        doc_ref.update({("now_state"+event.source.user_id+".score"): player_score})
+
+    elif len(docs) == 0:
+        # ルームが存在するがプレイ中でないまたは参加してない、またはそもそもルームがないときの処理
+        pass
+
+    else:
+        # !?
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="このメッセージが見られるのはおかしい"
+            )
+        )
+    
+    return
