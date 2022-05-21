@@ -320,7 +320,7 @@ def finish(event, line_bot_api):
             elif doc_dict.get("now_state") == "後半プレイ中":
                 # 集計の処理
                 # 集計して表示
-                reply_msg = "～結果発表～\n\n"
+                reply_msg = "【結果発表】\n\n"
                 players_dict = {}
                 for player in doc_dict.get("participants"):
                     player_id = player
@@ -328,6 +328,7 @@ def finish(event, line_bot_api):
                     players_dict[player_id] = player_score
                     player_name = line_bot_api.get_group_member_profile(event.source.group_id, player_id).display_name
                     reply_msg += player_name+"さん、"+str(player_score)+"点！\n"
+                reply_msg += "\nゲームおしまい"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
                         text=reply_msg
@@ -335,11 +336,11 @@ def finish(event, line_bot_api):
                 )
                 # ゲームおしまいの処理
                 doc_ref.delete()
-                line_bot_api.reply_message(
-                    event.reply_token, TextSendMessage(
-                        text="ゲームおしまい"
-                    )
-                )
+                # line_bot_api.reply_message(
+                #     event.reply_token, TextSendMessage(
+                #         text="ゲームおしまい"
+                #     )
+                # )
             else:
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
