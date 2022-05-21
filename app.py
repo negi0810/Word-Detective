@@ -73,11 +73,12 @@ def handle_message(event):
             )
         # その他のメッセージ:
         else:
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(
-                    text="その他のメッセージが送られました"
-                )
-            )
+            crud.keyword_count(event, line_bot_api=line_bot_api)
+            # line_bot_api.reply_message(
+            #     event.reply_token, TextSendMessage(
+            #         text="その他のメッセージが送られました"
+            #     )
+            # )
     else:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(
