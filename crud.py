@@ -38,7 +38,7 @@ def new_game(event, line_bot_api):
             # DBの初期状態
             {
                 "group_id": event.source.group_id,
-                "now_state": "standby",
+                "now_state": "recruiting",
                 # "gamestate": "tier1",
                 # "gameinfo": {
                 #     "started_at": "2022/05/16 23:56:31"
@@ -47,7 +47,6 @@ def new_game(event, line_bot_api):
                 # }
             }
         )
-        doc_ref.update({"now_state": "recruiting"})
     else:
         # 一旦ゲームを終了するよう促す
         line_bot_api.reply_message(
@@ -82,32 +81,57 @@ def abort(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません"
             )
         )
-        # または、何もしない
     return True
 
 
 def join(event, line_bot_api):
-    doc_ref = db.collection("word-detective").document(event.source.group_id)
-    # 送信元グループでルームが存在する:
-    if doc_ref.get().exists:
-        doc_dict = doc_ref.get().to_dict()
-        profile = line_bot_api.get_profile(event.source.user_id)
-        # プレイヤーがまだ参加していないとき
-        if event.source.user_id not in doc_dict.get(event.source.user_id):
-            # DBに送信者のIDを登録
-            doc_ref.set({
-                event.source.user_id: {"user_id": event.source.user_id}
-            }, merge=True)
-            line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(
-                    text=(profile.display_name+"さんの参加を受け付けました")
-                )
+    # user_idが取得できないとき
+    if not hasattr(event.source, "user_id"):
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="userIDの取得に失敗しました"
             )
-        # プレイヤーがすでに参加してたとき
+        )
+        return
+    doc_ref = db.collection("word-detective").document(event.source.group_id)
+    doc = doc_ref.get()
+    # 送信元グループでルームが存在する:
+    if doc.exists:
+        doc_dict = doc.to_dict()
+        #profile = line_bot_api.get_profile(event.source.user_id)
+        profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+        # ルームの状態が参加受付中
+        if doc_dict.get("gamestate") == "参加受付中":
+            # プレイヤーがまだ参加していないとき
+            if event.source.user_id not in doc_dict.get("participants"):
+                reply_msg = ""
+                # DBに送信者のIDを登録
+                doc_ref.set({
+                    "participants": {
+                        event.source.user_id: {"user_id": event.source.user_id}
+                    }
+                }, merge=True)
+                reply_msg += (profile.display_name+"さんの参加を受け付けました")
+                # 送信者を登録する前の参加人数が(定員-1)のとき(つまり、定員に達したとき)
+                if len(doc_dict.get("participants")) == 2:
+                    doc_ref.update({"gamestate": "前半待機中"})
+                    reply_msg += "\n前半が開始されるのを待ちます……準備ができたら「@スタート」を"
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text=reply_msg
+                    )
+                )
+            # プレイヤーがすでに参加してたとき
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text=(profile.display_name+"さんは既に参加しています")
+                    )
+                )
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
-                    text=(profile.display_name+"さんは既に参加しています")
+                    text="ゲームの状態が参加受付中ではありません"
                 )
             )
         # TODO: PC版のLINEではユーザーIDを取得できないということを通知
@@ -132,7 +156,7 @@ def escape(event, line_bot_api):
 
     if doc_ref.get().exists:
         if now_state == "recruiting":
-            if event.source.user_id not in doc_dict.get(event.source.user_id):
+            if event.source.user_id not in doc_dict:
                 doc_ref.update(
                     {
                         event.source.user_id: firestore.DELETE_FIELD
@@ -161,3 +185,4 @@ def escape(event, line_bot_api):
                 text="ルーム自体が存在していません"
             )
         )
+    return True

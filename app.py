@@ -64,6 +64,12 @@ def handle_message(event):
             crud.join(event, line_bot_api=line_bot_api)
         elif msg == "@エスケープ":
             crud.escape(event, line_bot_api=line_bot_api)
+        elif msg == "@スタート":
+            crud.start(event, line_bot_api=line_bot_api)
+        elif msg == "@エンド":
+            crud.end(event, line_bot_api=line_bot_api)
+        elif msg == "@ヘルプ":
+            crud.help(event, line_bot_api=line_bot_api)
         # その他のメッセージ:
         else:
             line_bot_api.reply_message(
