@@ -445,3 +445,11 @@ def keyword_count(event, line_bot_api):
         )
     
     return
+
+def leave_event(event, line_bot_api):
+    # 送信元グループでルームが存在する:
+    doc_ref = db.collection('word-detective').document(event.source.groupId)
+    if doc_ref.get().exists:
+        doc_ref.delete()
+    else:
+        pass
