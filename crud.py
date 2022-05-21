@@ -59,7 +59,7 @@ def new_game(event, line_bot_api):
                 )
             )
         )
-    return True
+    return
 
 
 def abort(event, line_bot_api):
@@ -82,7 +82,7 @@ def abort(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません"
             )
         )
-    return True
+    return
 
 
 def join(event, line_bot_api):
@@ -105,23 +105,21 @@ def join(event, line_bot_api):
         if doc_dict.get("now_state") == "参加受付中":
             # プレイヤーがまだ参加していないとき
             if event.source.user_id not in doc_dict.get("participants"):
-                reply_msg = ""
                 # DBに送信者のIDを登録
                 doc_ref.set({
                     "participants": {
                         event.source.user_id: {"user_id": event.source.user_id}
                     }
                 }, merge=True)
-                reply_msg += (profile.display_name+"さんの参加を受け付けました")
                 # 送信者を登録する前の参加人数が(定員-1)のとき(つまり、定員に達したとき)
                 # if len(doc_dict.get("participants")) == 2:
                 #     doc_ref.update({"now_state": "前半待機中"})
                 #     reply_msg += "\n前半が開始されるのを待ちます……準備ができたら「@スタート」を入力してください"
-                # line_bot_api.reply_message(
-                #     event.reply_token, TextSendMessage(
-                #         text=reply_msg
-                #     )
-                # )
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text=(profile.display_name+"さんの参加を受け付けました")
+                    )
+                )
             # プレイヤーがすでに参加してたとき
             else:
                 line_bot_api.reply_message(
@@ -143,7 +141,7 @@ def join(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません\n「@ニューゲーム」でルームを作成してください"
             )
         )
-    return True
+    return
 
 
 # def escape(event, line_bot_api):
@@ -186,7 +184,7 @@ def join(event, line_bot_api):
 #                 text="ルーム自体が存在していません"
 #             )
 #         )
-#     return True
+#     return
 
 def escape(event, line_bot_api):
     # user_idが取得できないとき
@@ -236,3 +234,119 @@ def escape(event, line_bot_api):
                 text="現在このグループで実行中のゲームはありません"
             )
         )
+    return
+
+
+def start(event, line_bot_api):
+    # user_idが取得できないとき
+    if not hasattr(event.source, "user_id"):
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="userIDの取得に失敗しました"
+            )
+        )
+        return
+    doc_ref = db.collection("word-detective").document(event.source.group_id)
+    doc = doc_ref.get()
+    # 送信元グループでルームが存在する:
+    if doc.exists:
+        doc_dict = doc.to_dict()
+        profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+        # 発言者がゲームに参加しているとき
+        if event.source.user_id in doc_dict.get("participants"):
+            # ルームの状態が参加受付中か確認
+            if doc_dict.get("now_state") == "参加受付中":
+                # 前半戦を始める処理
+                doc_ref.update({"now_state": "前半プレイ中"})
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="前半戦スタート！"
+                    )
+                )
+            elif doc_dict.get("now_state") == "後半開始待機":
+                # 後半戦を始める処理
+                doc_ref.update({"now_state": "後半プレイ中"})
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="後半戦スタート！"
+                    )
+                )
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="ゲーム開始待機中ではありません"
+                    )
+                )
+        # 発言者がゲームに参加していないとき
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(
+                    text=(profile.display_name+"さんはゲームに参加していないため、ゲームを進行する権利がありません")
+                )
+            )
+    else:
+        # 当該ルームが存在しないことを通知
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="現在このグループで実行中のゲームはありません\n「@ニューゲーム」でルームを作成してください"
+            )
+        )
+    return
+
+def stop(event, line_bot_api):
+    # user_idが取得できないとき
+    if not hasattr(event.source, "user_id"):
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="userIDの取得に失敗しました"
+            )
+        )
+        return
+    doc_ref = db.collection("word-detective").document(event.source.group_id)
+    doc = doc_ref.get()
+    # 送信元グループでルームが存在する:
+    if doc.exists:
+        doc_dict = doc.to_dict()
+        profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+        # 発言者がゲームに参加しているとき
+        if event.source.user_id in doc_dict.get("participants"):
+            # ルームの状態が参加受付中か確認
+            if doc_dict.get("now_state") == "前半プレイ中":
+                # 前半戦を始める処理
+                doc_ref.update({"now_state": "後半開始待機"})
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="前半戦終了！後半戦の準備が出来たら「@スタート」と入力"
+                    )
+                )
+            elif doc_dict.get("now_state") == "後半プレイ中":
+                # 集計の処理
+                # ゲームおしまいの処理
+                doc_ref.delete()
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="ゲームおしまい"
+                    )
+                )
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="ゲームプレイ中ではありません"
+                    )
+                )
+        # 発言者がゲームに参加していないとき
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(
+                    text=(profile.display_name+"さんはゲームに参加していないため、ゲームを進行する権利がありません")
+                )
+            )
+        # TODO: PC版のLINEではユーザーIDを取得できないということを通知
+    else:
+        # 当該ルームが存在しないことを通知
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="現在このグループで実行中のゲームはありません\n「@ニューゲーム」でルームを作成してください"
+            )
+        )
+    return
