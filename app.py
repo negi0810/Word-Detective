@@ -94,16 +94,22 @@ def handle_message(event):
 def handle_join(event):
     if event.source.type == "group":
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(
-                text=[
-                    (
+            event.reply_token, [
+                TextSendMessage(
+                    text=(
                         "このゲームでは、二つの「地雷ワード」が設定されています。\n"
                         "皆さんにはその言葉を推理し、ほかの人がその言葉を発言するように仕向けてもらいます。\n"
                         "最終的にその言葉を言った回数の最も少ない人が勝ちとなります。"
-                    ),(
+                    )
+                ),
+                TextSendMessage(
+                    text=(
                         "ゲームは前半戦と後半戦に分かれており、それぞれ「お題」が設定されています。皆さんにはその「お題」をもとに会話をしてもらいます。\n"
                         "前半戦終了時において、二つの言葉を話した回数の合計が中間発表として掲示されますのでこれをもとに推理していってください。"
-                    ),(
+                    )
+                ),
+                TextSendMessage(
+                    text=(
                         "以下の手順に従ってゲームを進めてください。\n\n"
                         "最初に「@ニューゲーム」と入力しルームを作成してください。\n"
                         "次に参加者はそれぞれ「@ジョイン」と入力してください。\n"
@@ -113,8 +119,8 @@ def handle_join(event):
                         "後半戦を終了したい場合も同様に「@フィニッシュ」と入力してください。\n"
                         "「@ヘルプ」と入力すると使用できるコマンドの一覧が表示されます。"
                     )
-                ]
-            )
+                )
+            ]
         )
 
 @handler.add(LeaveEvent)
