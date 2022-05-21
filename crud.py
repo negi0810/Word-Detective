@@ -34,7 +34,11 @@ def new_game(event, line_bot_api):
     if not doc_ref.get().exists:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(
-                text="ゲームを開始しました"
+                text=(
+                    "ゲームを開始しました\n"
+                    "ゲームの参加者は「@ジョイン」と入力してください\n"
+                    "参加者の準備ができたら「@スタート」と入力してください"
+                )
             )
         )
         # 送信元グループidをキーとしてルームを生成
@@ -240,7 +244,10 @@ def start(event, line_bot_api):
                 doc_ref.update({"now_state": "前半プレイ中"})
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        text=("前半戦スタート！\n\n「"+doc_dict.get("trigger")[0]+"」について話し合ってください")
+                        text="前半戦スタート！\n\n「"+doc_dict.get("trigger")[0]+(
+                            "」について話し合ってください\n"
+                            "終わり次第「@フィニッシュ」と入力してください"
+                        )
                     )
                 )
             elif doc_dict.get("now_state") == "後半開始待機":
@@ -248,7 +255,10 @@ def start(event, line_bot_api):
                 doc_ref.update({"now_state": "後半プレイ中"})
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        text=("後半戦スタート！\n\n「"+doc_dict.get("trigger")[1]+"」について話し合ってください")
+                        text="後半戦スタート！\n\n「"+doc_dict.get("trigger")[1]+(
+                            "」について話し合ってください\n"
+                            "終わり次第「@フィニッシュ」と入力してください"
+                        )
                     )
                 )
             else:
@@ -311,7 +321,7 @@ def finish(event, line_bot_api):
                     players_dict[player_id] = player_score
                     player_name = line_bot_api.get_group_member_profile(event.source.group_id, player_id).display_name
                     reply_msg += player_name+"さん、"+str(player_score)+"点！\n"
-                reply_msg += "\n前半戦終了！後半戦の準備が出来たら「@スタート」と入力"
+                reply_msg += "\n前半戦終了！後半戦の準備が出来たら「@スタート」と入力してください"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
                         text=reply_msg
