@@ -7,6 +7,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
     MessageEvent,
+    JoinEvent,
     TextMessage,
     TextSendMessage,
 )
@@ -87,6 +88,15 @@ def handle_message(event):
         )
         
     return True
+
+@handler.add(JoinEvent)
+def handle_join(event):
+    if event.source.type == "group":
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="word-detectiveをご招待いただきありがとうございます"
+            )
+        )
 
 
 if __name__ == "__main__":
