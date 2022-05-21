@@ -93,7 +93,7 @@ def join(event, line_bot_api):
         doc_dict = doc_ref.get().to_dict()
         profile = line_bot_api.get_profile(event.source.user_id)
         # プレイヤーがまだ参加していないとき
-        if event.source.user_id != doc_dict.get(event.source.user_id["user_id"]):
+        if event.source.user_id not in doc_dict.get(event.source.user_id):
             # DBに送信者のIDを登録
             doc_ref.set({
                 event.source.user_id: {"user_id": event.source.user_id}
@@ -132,7 +132,7 @@ def escape(event, line_bot_api):
 
     if doc_ref.get().exists:
         if now_state == "recruiting":
-            if event.source.user_id == doc_dict.get(event.source.user_id["user_id"]):
+            if event.source.user_id not in doc_dict.get(event.source.user_id):
                 doc_ref.update(
                     {
                         event.source.user_id: firestore.DELETE_FIELD
