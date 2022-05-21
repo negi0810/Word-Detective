@@ -321,7 +321,7 @@ def finish(event, line_bot_api):
                     players_dict[player_id] = player_score
                     player_name = line_bot_api.get_group_member_profile(event.source.group_id, player_id).display_name
                     reply_msg += player_name+"さん、"+str(player_score)+"点！\n"
-                reply_msg += "\n前半戦終了！後半戦の準備が出来たら「@スタート」と入力してください"
+                reply_msg += "\n前半戦終了！\n地雷の予想はできましたか？後半戦の準備が出来たら「@スタート」と入力してください"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
                         text=reply_msg
