@@ -146,44 +146,93 @@ def join(event, line_bot_api):
     return True
 
 
-def escape(event, line_bot_api):
-    doc_ref = db.collection("word-detective").document(event.source.group_id)
-    doc_dict = doc_ref.get().to_dict()
-    profile = line_bot_api.get_profile(event.source.user_id)
-    now_state = doc_dict.get("now_state")
-    print(doc_ref.get().to_dict())
-    print(doc_ref.get().to_dict().get(event.source.user_id))
-    print(doc_ref.get().to_dict().get(event.source.user_id["user_id"]))
+# def escape(event, line_bot_api):
+#     doc_ref = db.collection("word-detective").document(event.source.group_id)
+#     doc_dict = doc_ref.get().to_dict()
+#     profile = line_bot_api.get_profile(event.source.user_id)
+#     now_state = doc_dict.get("now_state")
+#     print(doc_ref.get().to_dict())
+#     print(doc_ref.get().to_dict().get(event.source.user_id))
+#     print(doc_ref.get().to_dict().get(event.source.user_id["user_id"]))
 
-    if doc_ref.get().exists:
-        if now_state == "recruiting":
-            if event.source.user_id not in doc_dict:
-                doc_ref.update(
-                    {
-                        event.source.user_id: firestore.DELETE_FIELD
-                    }
-                )
+#     if doc_ref.get().exists:
+#         if now_state == "recruiting":
+#             if event.source.user_id not in doc_dict:
+#                 doc_ref.update(
+#                     {
+#                         event.source.user_id: firestore.DELETE_FIELD
+#                     }
+#                 )
+#                 line_bot_api.reply_message(
+#                     event.reply_token, TextSendMessage(
+#                         text=(profile.display_name+"さんがルームを退出しました")
+#                     )
+#                 )
+#             else:
+#                 line_bot_api.reply_message(
+#                     event.reply_token, TextSendMessage(
+#                         text="あなたはまだこのルームに参加していません"
+#                     )
+#                 )
+#         else:
+#             line_bot_api.reply_message(
+#                 event.reply_token, TextSendMessage(
+#                     text="現在はルームを退出することができません\nゲームを終了したい場合は「@アボート」を入力してください"
+#                 )
+#             )
+#     else:
+#         line_bot_api.reply_message(
+#             event.reply_token, TextSendMessage(
+#                 text="ルーム自体が存在していません"
+#             )
+#         )
+#     return True
+
+def escape(event, line_bot_api):
+    # user_idが取得できないとき
+    if not hasattr(event.source, "user_id"):
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(
+                text="userIDの取得に失敗しました"
+            )
+        )
+        return
+    doc_ref = db.collection('word-detective').document(event.source.group_id)
+    doc = doc_ref.get()
+    # 送信元グループでルームが存在する:
+    if doc.exists:
+        doc_dict = doc.to_dict()
+        profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
+        # プレイヤーがすでに参加してたとき
+        if event.source.user_id in doc_dict.get("participants"):
+            # ルームの状態が参加受付中
+            if doc_dict.get("now_state") == "参加受付中":
+                # DBから送信者のIDを削除
+                doc_ref.update({
+                    ("participants."+event.source.user_id): firestore.DELETE_FIELD
+                })
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        text=(profile.display_name+"さんがルームを退出しました")
+                        text=(profile.display_name+"さんの参加を取り消しました")
                     )
                 )
             else:
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        text="あなたはまだこのルームに参加していません"
+                        text="ゲームの状態が参加受付中ではありません\nゲームを終了したい場合は「@アボート」を入力してください"
                     )
                 )
+        # プレイヤーがまだ参加していないとき
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
-                    text="現在はルームを退出することができません\nゲームを終了したい場合は「@アボート」を入力してください"
+                    text=(profile.display_name+"さんはゲームに参加していません")
                 )
             )
     else:
+        # 当該ルームが存在しないことを通知
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(
-                text="ルーム自体が存在していません"
+                text="現在このグループで実行中のゲームはありません"
             )
         )
-    return True

@@ -70,6 +70,12 @@ def handle_message(event):
             crud.end(event, line_bot_api=line_bot_api)
         elif msg == "@ヘルプ":
             crud.help(event, line_bot_api=line_bot_api)
+        elif msg.count("＠") >= 1:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(
+                    text="「@」は半角であることに注意してください"
+                )
+            )
         # その他のメッセージ:
         else:
             line_bot_api.reply_message(
