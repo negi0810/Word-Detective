@@ -66,10 +66,10 @@ def handle_message(event):
             crud.escape(event, line_bot_api=line_bot_api)
         elif msg == "@スタート":
             crud.start(event, line_bot_api=line_bot_api)
-        elif msg == "@エンド":
-            crud.end(event, line_bot_api=line_bot_api)
+        elif msg == "@フィニッシュ":
+            crud.finish(event, line_bot_api=line_bot_api)
         elif msg == "@ヘルプ":
-            crud.help(event, line_bot_api=line_bot_api)
+            crud.game_help(event, line_bot_api=line_bot_api)
         elif msg.count("＠") >= 1:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
