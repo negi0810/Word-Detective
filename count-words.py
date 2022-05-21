@@ -1,5 +1,12 @@
+#カウント
+
 from functools import total_ordering
 from itertools import count
+
+
+text = input()
+score = text.count("トマト")
+print(score)
 
 #st = "やっぱりトマトと人参だなそっちの意見は？"
 
@@ -15,9 +22,3 @@ from itertools import count
 #print(total)
 
 #一人一人、idごとに1つの文字列を作成　→　終了と同時に一斉に数え上げる
-
-
-
-text = input()
-score = text.count("トマト")
-print(score)

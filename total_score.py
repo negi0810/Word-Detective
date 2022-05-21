@@ -1,3 +1,5 @@
+#結果発表
+
 from multiprocessing.sharedctypes import Value
 from operator import itemgetter
 import re
