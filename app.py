@@ -50,7 +50,7 @@ trigger = ["大学生になって初めて知ったこと", "休日何してる�
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("call endpoint")
-    msg = event.source.text
+    msg = event.message.text
     # メッセージがグループから送られている:
     if event.source.type == "group":
         # メッセージが"@ニューゲーム":
