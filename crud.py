@@ -129,8 +129,8 @@ def escape(event, line_bot_api):
     now_state = doc_ref.get(["now_state"])
     print(doc_ref.get())
     print(now_state)
-    print(doc_ref.to_dict())
-    print(doc_ref.to_dict().get("participants."+event.source.user_id))
+    print(doc_ref.get().to_dict())
+    print(doc_ref.get().to_dict().get("participants."+event.source.user_id))
 
     if doc_ref.get().exists:
         if now_state == "recruiting":
