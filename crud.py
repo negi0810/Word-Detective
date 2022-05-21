@@ -76,6 +76,11 @@ def operate(event, line_bot_api):
         elif event.message.text == "@アボート":
             # 送信元グループでルームが存在する:
             if doc_ref.get().exists:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(
+                        text="ルームを消去しました"
+                    )
+                )
                 # そのルームを破棄
                 doc_ref.delete()
             # 送信元グループでルームが存在しない:
@@ -112,6 +117,7 @@ def operate(event, line_bot_api):
                             text=(profile.display_name+"さんは既に参加しています")
                         )
                     )
+                # TODO: PC版のLINEではユーザーIDを取得できないということを通知
             else:
                 # 当該ルームが存在しないことを通知
                 line_bot_api.reply_message(
