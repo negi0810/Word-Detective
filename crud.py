@@ -311,7 +311,7 @@ def finish(event, line_bot_api):
                     players_dict[player_id] = player_score
                     player_name = line_bot_api.get_group_member_profile(event.source.group_id, player_id).display_name
                     reply_msg += player_name+"さん、"+str(player_score)+"点！\n"
-                reply_msg += "前半戦終了！後半戦の準備が出来たら「@スタート」と入力"
+                reply_msg += "\n前半戦終了！後半戦の準備が出来たら「@スタート」と入力"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
                         text=reply_msg
@@ -328,6 +328,11 @@ def finish(event, line_bot_api):
                     players_dict[player_id] = player_score
                     player_name = line_bot_api.get_group_member_profile(event.source.group_id, player_id).display_name
                     reply_msg += player_name+"さん、"+str(player_score)+"点！\n"
+                reply_msg += "地雷ワードは"
+                for mine in doc_dict.get("mine"):
+                    reply_msg += mine+"、"
+                reply_msg = reply_msg[:-1]
+                reply_msg += "でした！\n"
                 reply_msg += "\nゲームおしまい"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
