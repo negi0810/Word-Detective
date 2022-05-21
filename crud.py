@@ -328,12 +328,11 @@ def finish(event, line_bot_api):
                     players_dict[player_id] = player_score
                     player_name = line_bot_api.get_group_member_profile(event.source.group_id, player_id).display_name
                     reply_msg += player_name+"さん、"+str(player_score)+"点！\n"
-                reply_msg += "地雷ワードは"
+                reply_msg += "\n地雷ワードは"
                 for mine in doc_dict.get("mine"):
-                    reply_msg += mine+"、"
+                    reply_msg += "「"+mine+"」と"
                 reply_msg = reply_msg[:-1]
-                reply_msg += "でした！\n"
-                reply_msg += "\nゲームおしまい"
+                reply_msg += "でした！"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
                         text=reply_msg
