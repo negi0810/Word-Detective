@@ -15,7 +15,7 @@ from linebot.models import (
 #     "user002": {"tier1_point": 3},
 #     "user003": {"tier1_point": 0}
 #   },
-#   "gamestate": "tier1",
+#  now_state": "tier1",
 #   "gameinfo": {
 #     "started_at": "2022/05/16 23:56:31"
 #     "keyword": "草",
@@ -38,8 +38,8 @@ def new_game(event, line_bot_api):
             # DBの初期状態
             {
                 "group_id": event.source.group_id,
-                "now_state": "recruiting",
-                # "gamestate": "tier1",
+                "now_state": "参加受付中",
+                #now_state": "tier1",
                 # "gameinfo": {
                 #     "started_at": "2022/05/16 23:56:31"
                 #     "keyword": "草",
@@ -101,7 +101,7 @@ def join(event, line_bot_api):
         #profile = line_bot_api.get_profile(event.source.user_id)
         profile = line_bot_api.get_group_member_profile(event.source.group_id, event.source.user_id)
         # ルームの状態が参加受付中
-        if doc_dict.get("gamestate") == "参加受付中":
+        if doc_dict.get("now_state") == "参加受付中":
             # プレイヤーがまだ参加していないとき
             if event.source.user_id not in doc_dict.get("participants"):
                 reply_msg = ""
@@ -114,7 +114,7 @@ def join(event, line_bot_api):
                 reply_msg += (profile.display_name+"さんの参加を受け付けました")
                 # 送信者を登録する前の参加人数が(定員-1)のとき(つまり、定員に達したとき)
                 if len(doc_dict.get("participants")) == 2:
-                    doc_ref.update({"gamestate": "前半待機中"})
+                    doc_ref.update({"now_state": "前半待機中"})
                     reply_msg += "\n前半が開始されるのを待ちます……準備ができたら「@スタート」を"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
