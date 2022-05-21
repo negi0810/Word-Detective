@@ -94,7 +94,7 @@ def join(event, line_bot_api):
             # DBに送信者のIDを登録
             doc_ref.set({
                 ("participants."+event.source.user_id): {"participants": event.source.user_id}
-            })
+            }, merge=True)
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(
                     text=(profile.display_name+"さんの参加を受け付けました")
