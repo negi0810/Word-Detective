@@ -114,14 +114,14 @@ def join(event, line_bot_api):
                 }, merge=True)
                 reply_msg += (profile.display_name+"さんの参加を受け付けました")
                 # 送信者を登録する前の参加人数が(定員-1)のとき(つまり、定員に達したとき)
-                if len(doc_dict.get("participants")) == 2:
-                    doc_ref.update({"now_state": "前半待機中"})
-                    reply_msg += "\n前半が開始されるのを待ちます……準備ができたら「@スタート」を"
-                line_bot_api.reply_message(
-                    event.reply_token, TextSendMessage(
-                        text=reply_msg
-                    )
-                )
+                # if len(doc_dict.get("participants")) == 2:
+                #     doc_ref.update({"now_state": "前半待機中"})
+                #     reply_msg += "\n前半が開始されるのを待ちます……準備ができたら「@スタート」を入力してください"
+                # line_bot_api.reply_message(
+                #     event.reply_token, TextSendMessage(
+                #         text=reply_msg
+                #     )
+                # )
             # プレイヤーがすでに参加してたとき
             else:
                 line_bot_api.reply_message(
