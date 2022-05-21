@@ -73,7 +73,7 @@ def handle_message(event):
     else:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(
-                text="グループではない所から送られました"
+                text="このBOTはグループチャットでのみ対応しています"
             )
         )
     return True

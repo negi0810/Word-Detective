@@ -91,7 +91,7 @@ def join(event, line_bot_api):
     doc = doc_ref.get()
     # 送信元グループでルームが存在する:
     if doc.exists:
-        doc_dict = doc.to_list()
+        doc_dict = doc.to_dict()
         profile = line_bot_api.get_profile(event.source.user_id)
         # プレイヤーがまだ参加していないとき
         if event.source.user_id not in doc_dict.get("participants"):
