@@ -240,7 +240,7 @@ def start(event, line_bot_api):
                 doc_ref.update({"now_state": "前半プレイ中"})
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        text="前半戦スタート！"
+                        text=("前半戦スタート！\n"+doc_dict.get("trigger")[0]+"について話し合ってください")
                     )
                 )
             elif doc_dict.get("now_state") == "後半開始待機":
@@ -248,7 +248,7 @@ def start(event, line_bot_api):
                 doc_ref.update({"now_state": "後半プレイ中"})
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
-                        text="後半戦スタート！"
+                        text=("後半戦スタート！\n"+doc_dict.get("trigger")[1]+"について話し合ってください")
                     )
                 )
             else:
@@ -306,9 +306,9 @@ def finish(event, line_bot_api):
                 reply_msg = ""
                 players_dict = {}
                 for player in doc_dict.get("participants"):
-                    players_dict[player.get("user_id")] = player["score"]
+                    players_dict[player.get("user_id")] = player.get("score")
                     player_name = line_bot_api.get_group_member_profile(event.source.group_id, player["user_id"]).display_name
-                    reply_msg += player_name+"さん、"+player["score"]+"点！\n"
+                    reply_msg += player_name+"さん、"+player["score"]+"点！\n"+players_dict.get(player.get("user_id"))+"\n"
                 reply_msg += "前半戦終了！後半戦の準備が出来たら「@スタート」と入力"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(
