@@ -39,6 +39,7 @@ def new_game(event, line_bot_api):
             {
                 "group_id": event.source.group_id,
                 "now_state": "参加受付中",
+                "participants": {}
                 #now_state": "tier1",
                 # "gameinfo": {
                 #     "started_at": "2022/05/16 23:56:31"
